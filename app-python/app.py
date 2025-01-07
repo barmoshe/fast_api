@@ -1,10 +1,14 @@
 from fastapi import FastAPI, Request, Response, Cookie
+from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import mysql.connector
 from mysql.connector import Error
 import os
 
 app = FastAPI()
+# Mount the static files directory
+app.mount("/frontend", StaticFiles(directory="static", html=True), name="static")
+
 
 # Database Configuration (from environment variables)
 DB_HOST = os.getenv("DATABASE_HOST", "localhost")
@@ -226,6 +230,10 @@ async def show_logs():
         return {"access_logs": logs}
     else:
         return {"error": "Database connection failed"}
+    
+
+
+
 
 
 # Initialize tables

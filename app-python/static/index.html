@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Backend Interaction Dashboard</title>
+
+  <!-- Google Font (Poppins) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* RESET & BASE STYLES */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden; /* Hide default scrollbars */
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(120deg, #f6f8fa 0%, #eef1f5 100%);
+      color: #333;
+    }
+
+    /* HEADER */
+    header {
+      flex-shrink: 0;
+      width: 100%;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      z-index: 10;
+      position: sticky;
+      top: 0;
+    }
+
+    /* MAIN CONTAINER */
+    .container {
+      flex: 1; /* Fill remaining vertical space */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden; /* Prevent internal scrolling */
+      padding: 2rem;
+      background: #fff;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #333;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* BUTTONS */
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .btn-primary {
+      background-color: #4CAF50;
+      color: #fff;
+    }
+    .btn-secondary {
+      background-color: #f0ad4e;
+      color: #fff;
+    }
+    .btn-tertiary {
+      background-color: #5bc0de;
+      color: #fff;
+    }
+
+    /* RESULTS SECTION */
+    .results {
+      width: 90%;
+      max-width: 1000px;
+      margin: 0 auto;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    .results h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #444;
+    }
+
+    /* JSON DISPLAY (for '/', '/showcount') */
+    .json-container {
+      background: #f9f9f9;
+      padding: 1.5rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: 'Courier New', Courier, monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      animation: fadeInUp 0.5s ease forwards;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      transition: all 0.3s ease;
+    }
+
+    /* JSON KEY/VALUE COLORS */
+    .json-key {
+      color: #d63384; /* Pink-ish */
+      font-weight: 600;
+    }
+    .json-value {
+      color: #28a745; /* Green */
+    }
+    .json-braces {
+      color: #6c757d; /* Gray */
+    }
+
+    /* LOG TABLE (for '/showlogs') */
+    .table-container {
+      overflow-x: auto; /* Allow horizontal scrolling if needed */
+      max-height: 400px; /* Adjust as needed */
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+      padding: 1rem;
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px; /* Ensure table is wide enough */
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      transition: background-color 0.3s ease;
+    }
+    th {
+      background-color: #4CAF50;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    /* Responsive adjustments for table */
+    @media (max-width: 768px) {
+      table {
+        min-width: 500px;
+      }
+    }
+
+    /* FOOTER */
+    footer {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+      background: #eef1f5;
+    }
+    footer a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* KEYFRAME ANIMATIONS */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* SCROLLBAR STYLING */
+    /* Optional: Customize scrollbar for better aesthetics */
+    .json-container::-webkit-scrollbar,
+    .table-container::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .json-container::-webkit-scrollbar-track,
+    .table-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .json-container::-webkit-scrollbar-thumb,
+    .table-container::-webkit-scrollbar-thumb {
+      background-color: #bbb;
+      border-radius: 4px;
+    }
+    .json-container::-webkit-scrollbar-thumb:hover,
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background-color: #999;
+    }
+
+    /* POPUP */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 2rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    .popup h3 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    .popup p {
+      margin-bottom: 1rem;
+    }
+    .popup button {
+      background: #4CAF50;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .popup button:hover {
+      background: #45a049;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    Backend Interaction Dashboard
+  </header>
+
+  <div class="container">
+    <h1>Interact with the Backend</h1>
+
+    <div class="buttons">
+      <button class="btn-primary" onclick="executeRoute('/')">Fetch Counter</button>
+      <button class="btn-secondary" onclick="executeRoute('/showcount')">Show Global Count</button>
+      <button class="btn-tertiary" onclick="executeRoute('/showlogs')">Show Access Logs</button>
+    </div>
+
+    <div id="results" class="results">
+      <h2>Results</h2>
+      <div id="jsonDisplay" class="json-container">
+        Results will appear here...
+      </div>
+      <!-- Table container will be injected here -->
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Backend Dashboard | Built with ❤️ by <a href="#">Your Name</a>
+  </footer>
+
+  <div id="popup" class="popup" style="display: none;">
+    <h3>Internal IP Cookie Set!</h3>
+    <p id="popupContent"></p>
+    <button onclick="closePopup()">Close</button>
+  </div>
+  <div id="overlay" class="overlay" style="display: none;" onclick="closePopup()"></div>
+
+  <script>
+    async function executeRoute(route) {
+      const display = document.getElementById("jsonDisplay");
+      const resultsSection = document.getElementById("results");
+      // Clear previous content
+      display.innerHTML = "";
+      const existingTable = document.getElementById("logsTableContainer");
+      if (existingTable) {
+        existingTable.remove();
+      }
+
+      // Show loading message
+      display.innerHTML = "<p>Loading...</p>";
+
+      try {
+        const response = await fetch(route);
+        if (!response.ok) {
+          throw new Error("HTTP error! Status: " + response.status);
+        }
+
+        const data = await response.json();
+
+        // Handle internal_ip popup
+        if (data.server_internal_ip) {
+          const expirationDate = new Date(Date.now() + 300000); // 5 minutes from now
+          showPopup(data.server_internal_ip, expirationDate);
+        }
+
+        // If route is the logs endpoint, render a table
+        if (route === "/showlogs") {
+          display.innerHTML = ""; // Clear loading message
+          const tableHTML = renderLogsTable(data);
+          resultsSection.insertAdjacentHTML('beforeend', tableHTML);
+        } else {
+          display.innerHTML = formatJSON(data);
+        }
+      } catch (error) {
+        display.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+      }
+    }
+
+    function showPopup(ip, expiration) {
+      const popup = document.getElementById("popup");
+      const overlay = document.getElementById("overlay");
+      const popupContent = document.getElementById("popupContent");
+
+      popupContent.innerHTML = `Internal IP: <strong>${ip}</strong><br />Expires at: <strong>${expiration.toLocaleTimeString()}</strong>`;
+
+      popup.style.display = "block";
+      overlay.style.display = "block";
+    }
+
+    function closePopup() {
+      document.getElementById("popup").style.display = "none";
+      document.getElementById("overlay").style.display = "none";
+    }
+
+    // Renders JSON as syntax-highlighted text
+    function formatJSON(json) {
+      const jsonString = JSON.stringify(json, null, 4);
+      return jsonString
+        .replace(/"(\w+)":/g, '<span class="json-key">"$1"</span>:')
+        .replace(/"([^"]*)"/g, '<span class="json-value">"$1"</span>')
+        .replace(/([{}])/g, '<span class="json-braces">$1</span>');
+    }
+
+    // Renders logs in a table format
+    // Expected data format: { "access_logs": [ [id, ip, containerId, timestamp, value], ... ] }
+    function renderLogsTable(data) {
+      // Validate data structure
+      if (!data.access_logs || !Array.isArray(data.access_logs)) {
+        return '<p style="color: red;">Invalid logs data format.</p>';
+      }
+
+      // Start building the table HTML
+      let tableHTML = `
+        <div id="logsTableContainer" class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>IP Address</th>
+                <th>Container ID</th>
+                <th>Timestamp</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      data.access_logs.forEach((logEntry, index) => {
+        // Destructure logEntry array
+        const [id, ip, containerId, timestamp, value] = logEntry;
+
+        tableHTML += `
+          <tr>
+            <td>${id}</td>
+            <td>${ip}</td>
+            <td>${containerId}</td>
+            <td>${timestamp}</td>
+            <td>${value}</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      return tableHTML;
+    }
+  </script>
+</body>
+</html>
