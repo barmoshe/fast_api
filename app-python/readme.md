@@ -1,4 +1,4 @@
-```markdown
+
 # Python and Docker Components Readme
 
 This application is a Python-based FastAPI web service integrated with MySQL for data storage. Docker is used for containerization, ensuring easy deployment and scalability.
@@ -63,4 +63,3 @@ The `docker-compose.yml` file orchestrates the following services:
 ### Key Notes:
 - Ensure all environment variables are correctly set for the application and database.
 - Use `docker-compose` for seamless multi-service orchestration and scaling.
-```
