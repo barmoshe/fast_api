@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Backend Interaction Dashboard</title>
+  <title>Assignment Dashboard</title>
 
   <!-- Google Font (Poppins) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,7 +15,7 @@
 
   <style>
     /* RESET & BASE STYLES */
-    * {
+    *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -24,29 +24,35 @@
       width: 100%;
       height: 100%;
       font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #2C003E 0%, #1E1E1E 100%);
+      color: #ECF0F1;
       overflow: hidden; /* Hide default scrollbars */
     }
     body {
       display: flex;
       flex-direction: column;
-      background: linear-gradient(120deg, #f6f8fa 0%, #eef1f5 100%);
-      color: #333;
+      position: relative;
+      z-index: 1;
     }
 
     /* HEADER */
     header {
       flex-shrink: 0;
       width: 100%;
-      background-color: #4CAF50;
-      color: #fff;
-      padding: 1rem;
+      background-color: #1E1E1E;
+      color: #8E44AD;
+      padding: 1.5rem 2rem;
       text-align: center;
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 600;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      z-index: 10;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5);
       position: sticky;
       top: 0;
+      z-index: 10;
+      transition: background-color 0.3s ease;
+    }
+    header:hover {
+      background-color: #2C003E;
     }
 
     /* MAIN CONTAINER */
@@ -55,17 +61,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      overflow: hidden; /* Prevent internal scrolling */
-      padding: 2rem;
-      background: #fff;
+      justify-content: flex-start;
+      overflow: auto; /* Allow internal scrolling if necessary */
+      padding: 3rem 2rem;
+      background-color: rgba(30, 30, 30, 0.85);
+      border-radius: 10px;
+      margin: 2rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
       animation: fadeIn 0.8s ease-in-out;
+      backdrop-filter: blur(5px);
     }
 
     h1 {
-      margin-bottom: 1.5rem;
-      font-size: 2rem;
-      color: #333;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+      color: #8E44AD;
+      text-align: center;
       animation: fadeInUp 0.6s ease forwards;
     }
 
@@ -74,114 +85,136 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
       animation: fadeInUp 0.6s ease forwards;
     }
     button {
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
+      padding: 0.9rem 2rem;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 5px;
+      border-radius: 30px;
       cursor: pointer;
       font-weight: 500;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+      color: #1E1E1E;
+      background: linear-gradient(135deg, #8E44AD 0%, #A569BD 100%);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, #A569BD 0%, #8E44AD 100%);
     }
     .btn-primary {
-      background-color: #4CAF50;
-      color: #fff;
+      background: linear-gradient(135deg, #8E44AD 0%, #A569BD 100%);
+      color: #1E1E1E;
     }
     .btn-secondary {
-      background-color: #f0ad4e;
-      color: #fff;
+      background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
+      color: #ECF0F1;
     }
     .btn-tertiary {
-      background-color: #5bc0de;
-      color: #fff;
+      background: linear-gradient(135deg, #7F8C8D 0%, #95A5A6 100%);
+      color: #1E1E1E;
     }
 
     /* RESULTS SECTION */
     .results {
-      width: 90%;
-      max-width: 1000px;
+      width: 100%;
+      max-width: 1200px;
       margin: 0 auto;
+      background-color: rgba(44, 44, 44, 0.85);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      padding: 2rem;
       animation: fadeInUp 0.6s ease forwards;
+      backdrop-filter: blur(3px);
     }
     .results h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
       text-align: center;
-      color: #444;
+      color: #8E44AD;
     }
 
-    /* JSON DISPLAY (for '/', '/showcount') */
+    /* JSON DISPLAY */
     .json-container {
-      background: #f9f9f9;
-      padding: 1.5rem;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      background-color: rgba(58, 58, 58, 0.85);
+      padding: 2rem;
+      border-radius: 8px;
       font-family: 'Courier New', Courier, monospace;
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
       animation: fadeInUp 0.5s ease forwards;
-      line-height: 1.4;
+      line-height: 1.6;
       white-space: pre-wrap;
       word-wrap: break-word;
-      transition: all 0.3s ease;
+      position: relative;
+      transition: background-color 0.3s ease;
+      color: #ECF0F1;
+    }
+    .json-container:hover {
+      background-color: rgba(78, 78, 78, 0.85);
     }
 
     /* JSON KEY/VALUE COLORS */
     .json-key {
-      color: #d63384; /* Pink-ish */
+      color: #A569BD; /* Soft Lavender */
       font-weight: 600;
     }
     .json-value {
-      color: #28a745; /* Green */
+      color: #BDC3C7; /* Light Grey */
     }
     .json-braces {
-      color: #6c757d; /* Gray */
+      color: #FFFFFF; /* White */
     }
 
-    /* LOG TABLE (for '/showlogs') */
+    /* LOG TABLE */
     .table-container {
       overflow-x: auto; /* Allow horizontal scrolling if needed */
-      max-height: 400px; /* Adjust as needed */
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background: #f9f9f9;
-      padding: 1rem;
+      max-height: 500px; /* Adjust as needed */
+      border-radius: 8px;
+      background-color: rgba(58, 58, 58, 0.85);
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
       animation: fadeInUp 0.5s ease forwards;
+      margin-top: 2rem;
+      backdrop-filter: blur(3px);
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 600px; /* Ensure table is wide enough */
+      min-width: 700px; /* Ensure table is wide enough */
     }
     th, td {
-      padding: 0.75rem 1rem;
+      padding: 1rem;
       text-align: left;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #444444;
       transition: background-color 0.3s ease;
     }
     th {
-      background-color: #4CAF50;
-      color: #fff;
+      background-color: #8E44AD;
+      color: #1E1E1E;
       position: sticky;
       top: 0;
       z-index: 2;
+      font-size: 1rem;
     }
     tr:hover {
-      background-color: #f1f1f1;
+      background-color: #5D6D7E;
+    }
+    td {
+      color: #ECF0F1;
+      font-size: 0.95rem;
     }
     /* Responsive adjustments for table */
     @media (max-width: 768px) {
       table {
-        min-width: 500px;
+        min-width: 600px;
+      }
+      th, td {
+        padding: 0.75rem;
       }
     }
 
@@ -189,56 +222,65 @@
     footer {
       flex-shrink: 0;
       text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #999;
-      background: #eef1f5;
+      padding: 1.5rem 2rem;
+      font-size: 1rem;
+      color: #BDC3C7;
+      background-color: #1E1E1E;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
+      transition: background-color 0.3s ease;
+      z-index: 10;
+    }
+    footer:hover {
+      background-color: #2C003E;
     }
     footer a {
-      color: #4CAF50;
+      color: #A569BD;
       text-decoration: none;
       font-weight: 500;
+      transition: color 0.3s ease;
     }
     footer a:hover {
+      color: #BDC3C7;
       text-decoration: underline;
     }
 
     /* KEYFRAME ANIMATIONS */
     @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     @keyframes fadeInUp {
-      0% {
+      from {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateY(20px);
       }
-      100% {
+      to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
     /* SCROLLBAR STYLING */
-    /* Optional: Customize scrollbar for better aesthetics */
+    /* Customize scrollbar for better aesthetics */
     .json-container::-webkit-scrollbar,
     .table-container::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
     }
     .json-container::-webkit-scrollbar-track,
     .table-container::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 4px;
+      background: rgba(30, 30, 30, 0.5);
+      border-radius: 5px;
     }
     .json-container::-webkit-scrollbar-thumb,
     .table-container::-webkit-scrollbar-thumb {
-      background-color: #bbb;
-      border-radius: 4px;
+      background-color: #A569BD;
+      border-radius: 5px;
+      border: 2px solid rgba(30, 30, 30, 0.5);
     }
     .json-container::-webkit-scrollbar-thumb:hover,
     .table-container::-webkit-scrollbar-thumb:hover {
-      background-color: #999;
+      background-color: #BDC3C7;
     }
 
     /* POPUP */
@@ -247,31 +289,38 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      padding: 2rem;
-      background: #fff;
+      padding: 2.5rem 3rem;
+      background-color: rgba(30, 30, 30, 0.95);
       border-radius: 10px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
       z-index: 1000;
       animation: fadeIn 0.4s ease-in-out;
+      max-width: 90%;
+      width: 400px;
+      color: #ECF0F1;
     }
     .popup h3 {
-      margin-bottom: 1rem;
-      color: #333;
+      margin-bottom: 1.5rem;
+      color: #8E44AD;
+      font-size: 1.5rem;
     }
     .popup p {
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
+      color: #ECF0F1;
+      line-height: 1.5;
     }
     .popup button {
-      background: #4CAF50;
-      color: #fff;
-      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #8E44AD 0%, #A569BD 100%);
+      color: #1E1E1E;
+      padding: 0.7rem 1.5rem;
       border: none;
-      border-radius: 5px;
+      border-radius: 25px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      font-weight: 500;
+      transition: background 0.3s ease;
     }
     .popup button:hover {
-      background: #45a049;
+      background: linear-gradient(135deg, #A569BD 0%, #8E44AD 100%);
     }
     .overlay {
       position: fixed;
@@ -279,24 +328,30 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.7);
       z-index: 999;
+      opacity: 0;
+      animation: fadeInOverlay 0.4s forwards;
+    }
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 
 <body>
   <header>
-    Backend Interaction Dashboard
+    Assignment Dashboard
   </header>
 
   <div class="container">
-    <h1>Interact with the Backend</h1>
+    <h1>Docker & GitHub Deployment Tasks</h1>
 
     <div class="buttons">
-      <button class="btn-primary" onclick="executeRoute('/')">Fetch Counter</button>
-      <button class="btn-secondary" onclick="executeRoute('/showcount')">Show Global Count</button>
-      <button class="btn-tertiary" onclick="executeRoute('/showlogs')">Show Access Logs</button>
+      <button class="btn-primary" onclick="executeRoute('/')">Execute Route "/"</button>
+      <button class="btn-secondary" onclick="executeRoute('/showcount')">Execute Route "/showcount"</button>
+      <button class="btn-tertiary" onclick="executeRoute('/showlogs')">Execute Route "/showlogs"</button>
     </div>
 
     <div id="results" class="results">
@@ -309,7 +364,7 @@
   </div>
 
   <footer>
-    &copy; 2025 Backend Dashboard | Built with ❤️ by <a href="#">Your Name</a>
+    &copy; 2025 Assignment Dashboard | Built with GPT by<a href="#"> Bar Moshe</a>
   </footer>
 
   <div id="popup" class="popup" style="display: none;">
@@ -356,7 +411,7 @@
           display.innerHTML = formatJSON(data);
         }
       } catch (error) {
-        display.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+        display.innerHTML = '<p style="color: #FF4136;">Error: ' + error.message + '</p>';
       }
     }
 
@@ -386,11 +441,11 @@
     }
 
     // Renders logs in a table format
-    // Expected data format: { "access_logs": [ [id, ip, containerId, timestamp, value], ... ] }
+    // Expected data format: { "access_logs": [ {id, client_ip, server_ip, access_time, counter}, ... ] }
     function renderLogsTable(data) {
       // Validate data structure
       if (!data.access_logs || !Array.isArray(data.access_logs)) {
-        return '<p style="color: red;">Invalid logs data format.</p>';
+        return '<p style="color: #FF4136;">Invalid logs data format.</p>';
       }
 
       // Start building the table HTML
@@ -409,28 +464,19 @@
             <tbody>
       `;
 
-      data.access_logs.forEach((logEntry, index) => {
-        // Destructure logEntry array
-        console.log(logEntry);
-        //log entry  format: {
-//     "id": 1,
-//     "client_ip": "172.18.0.6",
-//     "server_ip": "172.18.0.4",
-//     "access_time": "2025-01-07T19:42:35",
-//     "counter": 1
-// }
+      data.access_logs.forEach((logEntry) => {
+        // Destructure logEntry object
         const {id, client_ip, server_ip, access_time, counter} = logEntry;
         tableHTML += `
           <tr>
             <td>${id}</td>
             <td>${client_ip}</td>
             <td>${server_ip}</td>
-            <td>${access_time}</td>
+            <td>${new Date(access_time).toLocaleString()}</td>
             <td>${counter}</td>
           </tr>
         `;
       });
-       
 
       tableHTML += `
             </tbody>
