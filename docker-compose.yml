@@ -1,0 +1,52 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: whist_db
+    volumes:
+      - ./DB/data:/var/lib/mysql
+      - ./DB/logs:/var/log/mysql
+      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root --password=example || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  app:
+    depends_on:
+      db:
+        condition: service_healthy
+    build:
+      context: ./app-python
+      dockerfile: Dockerfile
+    ports:
+      - "8000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=example
+      - DATABASE_NAME=whist_db
+    volumes:
+      - ./app-python/logs:/app/logs # To retain logs after container stops
+    deploy:
+      replicas: 3 # Define 3 replicas for the app service
+      restart_policy:
+        condition: on-failure
+
+  nginx:
+    build:
+      context: ./nginx-lb
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - app # Ensure app service starts before nginx
