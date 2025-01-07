@@ -400,10 +400,10 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>IP Address</th>
-                <th>Container ID</th>
-                <th>Timestamp</th>
-                <th>Value</th>
+                <th>Client IP</th>
+                <th>Server IP</th>
+                <th>Access Time</th>
+                <th>Counter Value</th>
               </tr>
             </thead>
             <tbody>
@@ -411,18 +411,26 @@
 
       data.access_logs.forEach((logEntry, index) => {
         // Destructure logEntry array
-        const [id, ip, containerId, timestamp, value] = logEntry;
-
+        console.log(logEntry);
+        //log entry  format: {
+//     "id": 1,
+//     "client_ip": "172.18.0.6",
+//     "server_ip": "172.18.0.4",
+//     "access_time": "2025-01-07T19:42:35",
+//     "counter": 1
+// }
+        const {id, client_ip, server_ip, access_time, counter} = logEntry;
         tableHTML += `
           <tr>
             <td>${id}</td>
-            <td>${ip}</td>
-            <td>${containerId}</td>
-            <td>${timestamp}</td>
-            <td>${value}</td>
+            <td>${client_ip}</td>
+            <td>${server_ip}</td>
+            <td>${access_time}</td>
+            <td>${counter}</td>
           </tr>
         `;
       });
+       
 
       tableHTML += `
             </tbody>
