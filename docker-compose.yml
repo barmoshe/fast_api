@@ -38,7 +38,6 @@ services:
       - DATABASE_NAME=whist_db
     volumes:
       - ./app-python/logs:/app/logs # To retain logs after container stops
-      - ./nginx-lb/backend_map.conf:/etc/nginx/conf.d/backend_map.conf # Mount the backend_map.conf
     deploy:
       replicas: 3 # Define 3 replicas for the app service
       restart_policy:
@@ -52,5 +51,4 @@ services:
       - "80:80"
     depends_on:
       - app # Ensure app service starts before nginx
-    volumes:
-      - ./nginx-lb/backend_map.conf:/etc/nginx/conf.d/backend_map.conf:rw # Mount as read-write
+  
