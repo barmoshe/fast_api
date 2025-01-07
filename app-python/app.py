@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Response, Cookie
 from fastapi.staticfiles import StaticFiles
 from datetime import datetime
+import socket
 import mysql.connector
 from mysql.connector import Error
 import os
@@ -167,7 +168,11 @@ async def increment_counter(
     request: Request, response: Response, internal_ip: str = Cookie(None)
 ):
     client_ip = request.client.host
-    server_ip = os.getenv("HOSTNAME", "unknown")
+ # Get the server's IP address
+    try:
+        server_ip = socket.gethostbyname(socket.gethostname())
+    except socket.error:
+        server_ip = "unknown"    
     access_time = datetime.now()
 
     # Step 1: Increment the counter
