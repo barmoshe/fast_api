@@ -5,6 +5,9 @@ import socket
 import mysql.connector
 from mysql.connector import Error
 import os
+import signal
+import sys
+import asyncio
 
 app = FastAPI()
 # Mount the static files directory
@@ -18,6 +21,36 @@ DB_USER = os.getenv("DATABASE_USER", "root")
 DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "example")
 DB_NAME = os.getenv("DATABASE_NAME", "whist_db")
 
+# example map file
+# map $cookie_internal_ip $backend {
+#     default      "http://backend";          # Fallback backend
+#     "172.18.0.3" "http://172.18.0.3:8000";
+#     "172.18.0.4" "http://172.18.0.4:8000";
+#     "172.18.0.5" "http://172.18.0.5:8000";
+#     # Add more mappings as needed
+# }
+
+def update_client_ip():
+    #function to update the client ip address in the ../nginx-lb/backend_map.conf file 
+    try:
+        server_ip = socket.gethostbyname(socket.gethostname())
+    except socket.error:
+        server_ip = "unknown" 
+    if check_ip_exists(server_ip):
+        return
+    else:
+        #read the file and update the file
+        with open('/etc/nginx/backend_map.conf', 'r') as file:
+            # read a list of lines into data
+            data = file.readlines()
+        # add the ip address to thhe last line before the }
+        data.insert(-1, f'    "{server_ip}" "http://{server_ip}:8000";\n')
+        # and write everything back
+        with open('/etc/nginx/backend_map.conf', 'w') as file:
+            file.writelines(data)
+        
+
+       
 
 # Database connection function
 def get_db_connection():
@@ -238,9 +271,41 @@ async def show_logs():
     
 
 
+def check_ip_exists(ip):
+    with open('/etc/nginx/backend_map.conf', 'r') as file:
+        # read a list of lines into data
+        data = file.readlines()
+    for line in data:
+        if ip in line:
+            return True
+    return False
 
+def remove_server_ip():
+    try:
+        server_ip = socket.gethostbyname(socket.gethostname())
+    except socket.error:
+        server_ip = "unknown"
+
+    if server_ip == "unknown":
+        print("Unknown server IP. Skipping removal from backend_map.conf.")
+        return
+
+    try:
+        with open('/etc/nginx/backend_map.conf', 'r') as file:
+            lines = file.readlines()
+
+        # Filter out the line containing the server IP
+        with open('/etc/nginx/backend_map.conf', 'w') as file:
+            for line in lines:
+                if server_ip not in line:
+                    file.write(line)
+
+        print(f"Removed server IP {server_ip} from backend_map.conf.")
+    except Exception as e:
+        print(f"Error removing server IP from backend_map.conf: {e}")
 
 
 # Initialize tables
 initialize_counter()
 initialize_access_log()
+update_client_ip()
