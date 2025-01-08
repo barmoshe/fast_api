@@ -1,21 +1,29 @@
 #!/bin/bash
 
-# Check if docker-compose is installed
+set -e
+
+LOG_FILE="scale_app.log"
+
+error_exit() {
+  echo "Error: $1" | tee -a "$LOG_FILE"
+  exit 1
+}
+
 if ! command -v docker-compose &> /dev/null; then
-  echo "docker-compose is not installed. Please install it first."
-  exit 1
+  error_exit "docker-compose is not installed. Please install it first."
 fi
 
-# Scale the app service to 5 replicas
-echo "Scaling the 'app' service to 5 replicas..."
-docker-compose up -d --scale app=5 --no-recreate
+REPLICAS=7
 
-if [ $? -eq 0 ]; then
-  echo "Successfully scaled the 'app' service to 5 replicas."
-else
-  echo "Failed to scale the 'app' service. Check the logs for more details."
-  exit 1
-fi
+echo "Scaling the 'app' service to $REPLICAS replicas..." | tee -a "$LOG_FILE"
+docker-compose up -d --scale app=$REPLICAS --no-recreate 2>&1 | tee -a "$LOG_FILE"
 
-echo "Currently running containers:"
-docker ps
+echo "Successfully scaled the 'app' service to $REPLICAS replicas." | tee -a "$LOG_FILE"
+
+echo "Reloading Nginx to update upstream servers..." | tee -a "$LOG_FILE"
+docker-compose exec nginx nginx -s reload 2>&1 | tee -a "$LOG_FILE"
+
+echo "Nginx reloaded successfully." | tee -a "$LOG_FILE"
+
+echo "Currently running containers:" | tee -a "$LOG_FILE"
+docker ps | tee -a "$LOG_FILE"
