@@ -22,7 +22,7 @@ This is version 2 (V2) of the Whist Assignment, a containerized web application 
 
 4. **Scalability**:
    - Pre-configured with 3 replicas of the application container.
-   - A Bash script (`scale_app.sh`) allows scaling up/down to a specified number of replicas.
+   - A Bash script (`scale_app.sh`) and a CLI tool allow scaling up/down to a specified number of replicas.
 
 5. **Simplified Architecture**:
    - Removed unnecessary files (`backend_map.conf`, `watch.sh`) and reduced complexity in Nginx configuration.
@@ -47,7 +47,17 @@ whist_assignment_v2/
 │   ├── Dockerfile       # Dockerfile for Nginx
 │   ├── nginx.conf       # Nginx server configuration
 ├── readme.md            # Main README file
-└── scale_app.sh         # Bash script for scaling application replicas
+├── scale_app.sh         # Bash script for scaling application replicas
+└── docker-scale-cli
+    ├── constants.mjs
+    ├── mainMenu.mjs
+    ├── package-lock.json
+    ├── package.json
+    ├── tasks
+    │   └── scaleService.mjs
+    └── utils
+        ├── dockerHelpers.mjs
+        └── errorHandlers.mjs
 ```
 
 ---
@@ -70,10 +80,19 @@ whist_assignment_v2/
    - Use `/showcount` to view the global counter.
 
 4. **Scale Application**:
-   - Run the `scale_app.sh` script to change the number of application replicas:
+   - **Using Bash Script**:
+     Run the `scale_app.sh` script to change the number of application replicas:
      ```bash
      ./scale_app.sh
      ```
+   - **Using CLI Tool**:
+     Navigate to the CLI directory and start the CLI:
+     ```bash
+     cd docker-scale-cli
+     npm install
+     npm start
+     ```
+     Follow the interactive prompts to scale the `app` service up or down.
 
 ---
 
@@ -102,6 +121,16 @@ whist_assignment_v2/
 ### `scale_app.sh`
 - Bash script to scale the `app` service to a specified number of replicas.
 
+### CLI Tool
+- A CLI tool to scale the `app` service up or down and automatically reload Nginx to update upstream servers.
+- **Usage**:
+  ```bash
+  cd docker-scale-cli
+  npm install
+  npm start
+  ```
+- **Documentation**: [Docker Scale CLI README](./docker-scale-cli/README.md)
+
 ---
 
 ## Notes
@@ -109,3 +138,12 @@ whist_assignment_v2/
 - Ensure Docker and Docker Compose are installed.
 - Verify MySQL and application logs for debugging.
 - The `nginx.conf` file now directly manages cookie-based sticky sessions, simplifying configuration management.
+```
+
+---
+
+### Additional Information
+
+For detailed instructions and advanced usage of the CLI tool, please refer to the [Docker Scale CLI README](./docker-scale-cli/README.md).
+
+---
