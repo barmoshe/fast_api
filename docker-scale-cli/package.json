@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node mainMenu.mjs"
+  },
+  "dependencies": {
+    "inquirer": "^9.0.0"
+  }
+}
