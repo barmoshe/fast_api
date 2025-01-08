@@ -24,10 +24,11 @@ DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "example")
 DB_NAME = os.getenv("DATABASE_NAME", "whist_db")
 
 # Path to the Nginx backend map file
-BACKEND_MAP_FILE = '/etc/nginx/conf.d/backend_map.conf'
+BACKEND_MAP_FILE = "/etc/nginx/conf.d/backend_map.conf"
 
 # Global variable to store the server's IP
 server_ip = None
+
 
 def get_server_ip():
     """Retrieve the server's IP address."""
@@ -36,10 +37,11 @@ def get_server_ip():
     except socket.error:
         return "unknown"
 
+
 def check_ip_exists(ip):
     """Check if the given IP exists in the backend_map.conf file."""
     try:
-        with open(BACKEND_MAP_FILE, 'r') as file:
+        with open(BACKEND_MAP_FILE, "r") as file:
             data = file.readlines()
         for line in data:
             if f'"{ip}"' in line:
@@ -52,6 +54,7 @@ def check_ip_exists(ip):
         print(f"Error checking IP existence: {e}")
         return False
 
+
 def update_client_ip(ip):
     """Add the server's IP to the backend_map.conf file."""
     print(f"Updating client IP to {ip}...")
@@ -59,17 +62,17 @@ def update_client_ip(ip):
         if check_ip_exists(ip):
             print(f"IP {ip} already exists in {BACKEND_MAP_FILE}.")
             return
-        with open(BACKEND_MAP_FILE, 'r') as file:
+        with open(BACKEND_MAP_FILE, "r") as file:
             data = file.readlines()
         # Insert the new IP mapping before the closing brace
         insert_index = None
         for i, line in enumerate(data):
-            if line.strip() == '}':
+            if line.strip() == "}":
                 insert_index = i
                 break
         if insert_index is not None:
             data.insert(insert_index, f'    "{ip}" "http://{ip}:8000";\n')
-            with open(BACKEND_MAP_FILE, 'w') as file:
+            with open(BACKEND_MAP_FILE, "w") as file:
                 file.writelines(data)
             print(f"Added IP {ip} to {BACKEND_MAP_FILE}.")
         else:
@@ -77,21 +80,23 @@ def update_client_ip(ip):
     except Exception as e:
         print(f"Error updating client IP: {e}")
 
+
 def remove_client_ip(ip):
     """Remove the server's IP from the backend_map.conf file."""
-    #wait 1 ms per las t 2 digits of the ip address
-    time.sleep(int(ip.split('.')[-1])/10)
+    # wait 1 ms per las t 2 digits of the ip address
+    time.sleep(int(ip.split(".")[-1]) / 10)
     try:
-        with open(BACKEND_MAP_FILE, 'r') as file:
+        with open(BACKEND_MAP_FILE, "r") as file:
             data = file.readlines()
         new_data = [line for line in data if f'"{ip}"' not in line]
-        with open(BACKEND_MAP_FILE, 'w') as file:
+        with open(BACKEND_MAP_FILE, "w") as file:
             file.writelines(new_data)
         print(f"Removed IP {ip} from {BACKEND_MAP_FILE}.")
     except FileNotFoundError:
         print(f"Backend map file {BACKEND_MAP_FILE} not found.")
     except Exception as e:
         print(f"Error removing client IP: {e}")
+
 
 def signal_handler(signum, frame):
     """Handle termination signals to perform cleanup."""
@@ -100,9 +105,11 @@ def signal_handler(signum, frame):
         remove_client_ip(server_ip)
     sys.exit(0)
 
+
 # Register signal handlers for graceful shutdown
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
+
 
 def get_db_connection():
     """Establish a connection to the MySQL database."""
@@ -118,6 +125,7 @@ def get_db_connection():
     except Error as e:
         print(f"Error connecting to MySQL: {e}")
         return None
+
 
 def initialize_counter():
     """Initialize the global_counter table."""
@@ -144,6 +152,7 @@ def initialize_counter():
             cursor.close()
             connection.close()
 
+
 def initialize_access_log():
     """Initialize the access_log table."""
     connection = get_db_connection()
@@ -169,6 +178,7 @@ def initialize_access_log():
             cursor.close()
             connection.close()
 
+
 def increment_global_counter():
     """Increment the global counter atomically."""
     connection = get_db_connection()
@@ -189,6 +199,7 @@ def increment_global_counter():
             connection.close()
     return None
 
+
 def set_internal_ip_cookie(response: Response, internal_ip: str):
     """Set a cookie for the internal IP."""
     response.set_cookie(
@@ -199,7 +210,16 @@ def set_internal_ip_cookie(response: Response, internal_ip: str):
     )
     print(f"Set internal_ip cookie to {internal_ip}.")
 
-def record_access_log(client_ip: str, server_ip: str, access_time: datetime, counter: int):
+
+def record_access_log(
+    client_ip: str, server_ip: str, access_time: datetime, counter: int
+):
+    """Record the access details in the logs folder."""
+    log_file = "logs/access.log"
+    with open(log_file, "a") as file:
+        file.write(f"{access_time} - {client_ip} - {server_ip} - {counter}\n")
+    print(f"Access log recorded for {client_ip} at {access_time}.")
+
     """Record the access details in the access_log table."""
     connection = get_db_connection()
     if connection:
@@ -219,6 +239,7 @@ def record_access_log(client_ip: str, server_ip: str, access_time: datetime, cou
         finally:
             cursor.close()
             connection.close()
+
 
 @app.get("/")
 async def increment_counter(
@@ -243,6 +264,7 @@ async def increment_counter(
     record_access_log(client_ip, current_server_ip, access_time, counter)
 
     return {"server_internal_ip": current_server_ip, "counter": counter}
+
 
 @app.get("/showcount")
 async def show_count():
@@ -269,6 +291,7 @@ async def show_count():
     else:
         return {"error": "Database connection failed"}
 
+
 @app.get("/showlogs")
 async def show_logs():
     """Endpoint to show the latest 10 access logs."""
@@ -277,9 +300,7 @@ async def show_logs():
     if connection:
         try:
             cursor = connection.cursor(dictionary=True)
-            cursor.execute(
-                "SELECT * FROM access_log ORDER BY access_time DESC "
-            )
+            cursor.execute("SELECT * FROM access_log ORDER BY access_time DESC ")
             logs = cursor.fetchall()
             print(f"Retrieved {len(logs)} access logs.")
             print(logs)
@@ -292,7 +313,8 @@ async def show_logs():
             connection.close()
     else:
         return {"error": "Database connection failed"}
-    
+
+
 @app.on_event("startup")
 def initialize_app():
     """Initialize the application by setting up the database and updating the backend map."""
@@ -306,6 +328,7 @@ def initialize_app():
     print("Application initialized.")
     update_client_ip(server_ip)
     print("Application started.")
+
 
 # Initialize the application on startup
 initialize_app()
