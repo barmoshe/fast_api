@@ -141,9 +141,3 @@ whist_assignment_v2/
 ```
 
 ---
-
-### Additional Information
-
-For detailed instructions and advanced usage of the CLI tool, please refer to the [Docker Scale CLI README](./docker-scale-cli/README.md).
-
----
