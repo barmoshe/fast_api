@@ -1,3 +1,4 @@
 
 /DB/data
 DB/.DS_Store
+/docker-scale-cli/node_modules
