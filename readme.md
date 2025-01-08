@@ -1,6 +1,7 @@
-# Whist Assignment
 
-This project demonstrates a containerized web application using **FastAPI**, **MySQL**, and **Nginx**. It leverages **Docker Compose** for multi-container orchestration and scalability.
+# Whist Assignment V2
+
+This is version 2 (V2) of the Whist Assignment, a containerized web application project. This version introduces streamlined configurations by removing unused features like dynamic backend mapping and simplifies the overall design while retaining core functionality.
 
 ---
 
@@ -17,21 +18,20 @@ This project demonstrates a containerized web application using **FastAPI**, **M
    - Data and logs are retained on the host for persistence.
 
 3. **Load Balancing**:
-   - Nginx container acts as a reverse proxy and load balancer.
-   - Supports cookie-based stickiness to ensure requests from the same client are routed to the same backend server for 5 minutes.
+   - Nginx acts as a reverse proxy and handles cookie-based sticky sessions directly in the configuration without additional mapping files.
 
 4. **Scalability**:
    - Pre-configured with 3 replicas of the application container.
    - A Bash script (`scale_app.sh`) allows scaling up/down to a specified number of replicas.
 
-5. **Persistence**:
-   - Application logs and database data are mapped to the host machine to ensure data persistence.
+5. **Simplified Architecture**:
+   - Removed unnecessary files (`backend_map.conf`, `watch.sh`) and reduced complexity in Nginx configuration.
 
 ---
 
 ## File Structure
 ```
-whist_assignment/
+whist_assignment_v2/
 ├── DB
 │   ├── data             # MySQL data directory
 │   ├── init.sql         # Initial SQL script to set up the database
@@ -45,9 +45,7 @@ whist_assignment/
 ├── docker-compose.yml   # Docker Compose configuration
 ├── nginx-lb
 │   ├── Dockerfile       # Dockerfile for Nginx
-│   ├── backend_map.conf # Backend configuration for sticky sessions
 │   ├── nginx.conf       # Nginx server configuration
-│   └── watch.sh         # Script to reload Nginx on config changes
 ├── readme.md            # Main README file
 └── scale_app.sh         # Bash script for scaling application replicas
 ```
@@ -59,7 +57,7 @@ whist_assignment/
 1. **Clone the Repository**:
    ```bash
    git clone <repository-url>
-   cd whist_assignment
+   cd whist_assignment_v2
    ```
 
 2. **Build and Start Containers**:
@@ -79,44 +77,23 @@ whist_assignment/
 
 ---
 
-## Key Components
+## Key Changes in V2
 
-### Docker Compose
+1. **Simplified Backend Management**:
+   - Removed the `backend_map.conf` file.
+   - Cookie-based sticky sessions are now directly handled in `nginx.conf`.
 
-- **Services**:
-  1. **Database (MySQL)**:
-     - Stores the global counter and logs.
-     - Data and logs are retained on the host under `DB/`.
-  2. **Application**:
-     - Python-based FastAPI app running on `uvicorn`.
-     - Logs are mapped to the host under `app-python/logs/`.
-  3. **Nginx**:
-     - Acts as a reverse proxy and load balancer.
-     - Supports cookie-based sticky sessions using `internal_ip`.
+2. **Removed Dynamic Configuration Reload**:
+   - `watch.sh` script and `inotify-tools` dependency have been removed.
+   - Backend configuration is now static and simplified.
 
-- **Configuration**:
-  - Defined in `docker-compose.yml` to orchestrate the services.
+3. **Streamlined Nginx Configuration**:
+   - Directly proxies requests based on the presence of the `internal_ip` cookie.
+   - Reduced overhead while maintaining functionality.
 
-### Scaling
-- The application is pre-configured with 3 replicas.
-- Scale using:
-  ```bash
-  docker-compose up --scale app=5
-  ```
-
----
-
-## Key Features
-
-1. **Sticky Sessions**:
-   - Nginx routes requests based on the `internal_ip` cookie to maintain session stickiness.
-
-2. **Persistence**:
-   - Database data and logs are retained under `DB/`.
-   - Application logs are retained under `app-python/logs/`.
-
-3. **Dynamic Configuration Reload**:
-   - Nginx automatically reloads configurations when `backend_map.conf` is updated using `watch.sh`.
+4. **Retained Core Features**:
+   - Global counter functionality and logging remain unchanged.
+   - Application scaling and persistence are preserved.
 
 ---
 
@@ -131,4 +108,4 @@ whist_assignment/
 
 - Ensure Docker and Docker Compose are installed.
 - Verify MySQL and application logs for debugging.
-- Update the Nginx backend map (`backend_map.conf`) as needed for custom routing rules.
+- The `nginx.conf` file now directly manages cookie-based sticky sessions, simplifying configuration management.
