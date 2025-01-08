@@ -1,3 +1,4 @@
+```markdown
 # Whist Assignment
 
 This project demonstrates a containerized web application using **FastAPI**, **MySQL**, and **Nginx**. It leverages **Docker Compose** for multi-container orchestration and scalability.
@@ -22,7 +23,7 @@ This project demonstrates a containerized web application using **FastAPI**, **M
 
 4. **Scalability**:
    - Pre-configured with 3 replicas of the application container.
-   - A Bash script (`scale_app.sh`) allows scaling up/down to a specified number of replicas.
+   - A CLI tool and a Bash script allow scaling up/down to a specified number of replicas.
 
 5. **Persistence**:
    - Application logs and database data are mapped to the host machine to ensure data persistence.
@@ -43,13 +44,24 @@ whist_assignment/
 │   ├── requirements.txt # Python dependencies
 │   └── static           # Static assets (e.g., index.html)
 ├── docker-compose.yml   # Docker Compose configuration
+├── docker-scale-cli
+│   ├── constants.mjs
+│   ├── mainMenu.mjs
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tasks
+│   │   └── scaleService.mjs
+│   └── utils
+│       ├── dockerHelpers.mjs
+│       └── errorHandlers.mjs
 ├── nginx-lb
 │   ├── Dockerfile       # Dockerfile for Nginx
 │   ├── backend_map.conf # Backend configuration for sticky sessions
 │   ├── nginx.conf       # Nginx server configuration
 │   └── watch.sh         # Script to reload Nginx on config changes
 ├── readme.md            # Main README file
-└── scale_app.sh         # Bash script for scaling application replicas
+├── scale_app.sh         # Bash script for scaling application replicas
+└── docker-scale-cli/README.md # CLI Tool Documentation
 ```
 
 ---
@@ -72,7 +84,14 @@ whist_assignment/
    - Use `/showcount` to view the global counter.
 
 4. **Scale Application**:
-   - Run the `scale_app.sh` script to change the number of application replicas:
+   - Use the CLI tool or the Bash script to scale the `app` service.
+   - **Using the CLI Tool**:
+     ```bash
+     cd docker-scale-cli
+     npm install
+     npm start
+     ```
+   - **Using the Bash Script**:
      ```bash
      ./scale_app.sh
      ```
@@ -98,11 +117,14 @@ whist_assignment/
   - Defined in `docker-compose.yml` to orchestrate the services.
 
 ### Scaling
+
 - The application is pre-configured with 3 replicas.
 - Scale using:
-  ```bash
-  docker-compose up --scale app=5
-  ```
+  - **CLI Tool**: [Docker Scale CLI](./docker-scale-cli/README.md)
+  - **Bash Script**:
+    ```bash
+    ./scale_app.sh
+    ```
 
 ---
 
@@ -125,6 +147,9 @@ whist_assignment/
 ### `scale_app.sh`
 - Bash script to scale the `app` service to a specified number of replicas.
 
+### CLI Tool
+- A CLI tool to scale the `app` service up or down. [Read more](./docker-scale-cli/README.md)
+
 ---
 
 ## Notes
@@ -132,3 +157,5 @@ whist_assignment/
 - Ensure Docker and Docker Compose are installed.
 - Verify MySQL and application logs for debugging.
 - Update the Nginx backend map (`backend_map.conf`) as needed for custom routing rules.
+```
+
