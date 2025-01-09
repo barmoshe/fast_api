@@ -1,4 +1,4 @@
-```markdown
+
 # Whist Assignment
 
 This project demonstrates a containerized web application using **FastAPI**, **MySQL**, and **Nginx**. It leverages **Docker Compose** for multi-container orchestration and scalability.
@@ -157,5 +157,4 @@ whist_assignment/
 - Ensure Docker and Docker Compose are installed.
 - Verify MySQL and application logs for debugging.
 - Update the Nginx backend map (`backend_map.conf`) as needed for custom routing rules.
-```
 
