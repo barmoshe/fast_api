@@ -55,9 +55,8 @@ def check_ip_exists(ip):
         return False
 
 
-def update_client_ip(ip):
+def update_server_ip(ip):
     """Add the server's IP to the backend_map.conf file."""
-    print(f"Updating client IP to {ip}...")
     try:
         if check_ip_exists(ip):
             print(f"IP {ip} already exists in {BACKEND_MAP_FILE}.")
@@ -74,14 +73,13 @@ def update_client_ip(ip):
             data.insert(insert_index, f'    "{ip}" "http://{ip}:8000";\n')
             with open(BACKEND_MAP_FILE, "w") as file:
                 file.writelines(data)
-            print(f"Added IP {ip} to {BACKEND_MAP_FILE}.")
         else:
             print(f"Closing brace not found in {BACKEND_MAP_FILE}.")
     except Exception as e:
         print(f"Error updating client IP: {e}")
 
 
-def remove_client_ip(ip):
+def remove_server_ip(ip):
     """Remove the server's IP from the backend_map.conf file."""
     # wait 1 ms per las t 2 digits of the ip address
     time.sleep(int(ip.split(".")[-1]) / 10)
@@ -91,7 +89,6 @@ def remove_client_ip(ip):
         new_data = [line for line in data if f'"{ip}"' not in line]
         with open(BACKEND_MAP_FILE, "w") as file:
             file.writelines(new_data)
-        print(f"Removed IP {ip} from {BACKEND_MAP_FILE}.")
     except FileNotFoundError:
         print(f"Backend map file {BACKEND_MAP_FILE} not found.")
     except Exception as e:
@@ -102,7 +99,7 @@ def signal_handler(signum, frame):
     """Handle termination signals to perform cleanup."""
     print(f"Received signal {signum}. Shutting down gracefully...")
     if server_ip:
-        remove_client_ip(server_ip)
+        remove_server_ip(server_ip)
     sys.exit(0)
 
 
@@ -145,7 +142,6 @@ def initialize_counter():
                 "INSERT IGNORE INTO global_counter (id, value) VALUES (1, 0)"
             )
             connection.commit()
-            print("Initialized global_counter table.")
         except Error as e:
             print(f"Database error during initialization: {e}")
         finally:
@@ -166,12 +162,12 @@ def initialize_access_log():
                     client_ip VARCHAR(255) NOT NULL,
                     server_ip VARCHAR(255) NOT NULL,
                     access_time DATETIME NOT NULL,
+                    action VARCHAR(255) NOT NULL,
                     counter INT NOT NULL
                 )
                 """
             )
             connection.commit()
-            print("Initialized access_log table.")
         except Error as e:
             print(f"Database error during initialization: {e}")
         finally:
@@ -189,7 +185,6 @@ def increment_global_counter():
             connection.commit()
             cursor.execute("SELECT value FROM global_counter WHERE id = 1")
             counter = cursor.fetchone()[0]
-            print(f"Global counter incremented to {counter}.")
             return counter
         except Error as e:
             print(f"Database error in increment_global_counter: {e}")
@@ -208,18 +203,19 @@ def set_internal_ip_cookie(response: Response, internal_ip: str):
         max_age=300,  # 5 minutes
         httponly=True,
     )
-    print(f"Set internal_ip cookie to {internal_ip}.")
 
 
 def record_access_log(
-    client_ip: str, server_ip: str, access_time: datetime, counter: int
+    client_ip: str,
+    server_ip: str,
+    access_time: datetime,
+    counter: int,
+    action="increment",
 ):
     """Record the access details in the logs folder."""
     log_file = "logs/access.log"
     with open(log_file, "a") as file:
         file.write(f"{access_time} - {client_ip} - {server_ip} - {counter}\n")
-    print(f"Access log recorded for {client_ip} at {access_time}.")
-
     """Record the access details in the access_log table."""
     connection = get_db_connection()
     if connection:
@@ -227,13 +223,12 @@ def record_access_log(
             cursor = connection.cursor()
             cursor.execute(
                 """
-                INSERT INTO access_log (client_ip, server_ip, access_time, counter)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO access_log (client_ip, server_ip, access_time, counter, action)
+                VALUES (%s, %s, %s, %s, %s)
                 """,
-                (client_ip, server_ip, access_time, counter),
+                (client_ip, server_ip, access_time, counter, action),
             )
             connection.commit()
-            print(f"Access log recorded for {client_ip} at {access_time}.")
         except Error as e:
             print(f"Database error in record_access_log: {e}")
         finally:
@@ -275,9 +270,11 @@ async def show_count():
             cursor = connection.cursor()
             cursor.execute("SELECT value FROM global_counter WHERE id = 1")
             result = cursor.fetchone()
+            record_access_log(
+                "localhost", server_ip, datetime.now(), result[0], action="show count"
+            )
             if result:
                 counter = result[0]
-                print(f"Retrieved global counter: {counter}")
                 return {"global_counter": counter}
             else:
                 print("Global counter not found.")
@@ -296,14 +293,12 @@ async def show_count():
 async def show_logs():
     """Endpoint to show the latest 10 access logs."""
     connection = get_db_connection()
-    print("Retrieving access logs...")
+    record_access_log("localhost", server_ip, datetime.now(), 0, action="show logs")
     if connection:
         try:
             cursor = connection.cursor(dictionary=True)
             cursor.execute("SELECT * FROM access_log ORDER BY access_time DESC ")
             logs = cursor.fetchall()
-            print(f"Retrieved {len(logs)} access logs.")
-            print(logs)
             return {"access_logs": logs}
         except Error as e:
             print(f"Database error: {e}")
@@ -321,12 +316,9 @@ def initialize_app():
     global server_ip
     print("Initializing application...")
     server_ip = get_server_ip()
-    print(f"Server IP: {server_ip}")
     initialize_counter()
-    print("Global counter initialized.")
     initialize_access_log()
-    print("Application initialized.")
-    update_client_ip(server_ip)
+    update_server_ip(server_ip)
     print("Application started.")
 
 
