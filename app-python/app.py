@@ -65,7 +65,6 @@ def initialize_counter():
                 "INSERT IGNORE INTO global_counter (id, value) VALUES (1, 0)"
             )
             connection.commit()
-            print("Initialized global_counter table.")
         except Error as e:
             print(f"Database error during initialization: {e}")
         finally:
@@ -85,12 +84,12 @@ def initialize_access_log():
                     client_ip VARCHAR(255) NOT NULL,
                     server_ip VARCHAR(255) NOT NULL,
                     access_time DATETIME NOT NULL,
+                    action VARCHAR(255),
                     counter INT NOT NULL
                 )
                 """
             )
             connection.commit()
-            print("Initialized access_log table.")
         except Error as e:
             print(f"Database error during initialization: {e}")
         finally:
@@ -107,7 +106,6 @@ def increment_global_counter():
             connection.commit()
             cursor.execute("SELECT value FROM global_counter WHERE id = 1")
             counter = cursor.fetchone()[0]
-            print(f"Global counter incremented to {counter}.")
             return counter
         except Error as e:
             print(f"Database error in increment_global_counter: {e}")
@@ -125,9 +123,8 @@ def set_internal_ip_cookie(response: Response, internal_ip: str):
         max_age=300,  # 5 minutes
         httponly=True,
     )
-    print(f"Set internal_ip cookie to {internal_ip}.")
 
-def record_access_log(client_ip: str, server_ip: str, access_time: datetime, counter: int):
+def record_access_log(client_ip: str, server_ip: str, access_time: datetime, counter: int, action: str = "increment"):
     """Record the access details in the access_log table."""
     connection = get_db_connection()
     if connection:
@@ -135,13 +132,12 @@ def record_access_log(client_ip: str, server_ip: str, access_time: datetime, cou
             cursor = connection.cursor()
             cursor.execute(
                 """
-                INSERT INTO access_log (client_ip, server_ip, access_time, counter)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO access_log (client_ip, server_ip, access_time, counter, action)
+                VALUES (%s, %s, %s, %s, %s)
                 """,
-                (client_ip, server_ip, access_time, counter),
+                (client_ip, server_ip, access_time, counter, action),
             )
             connection.commit()
-            print(f"Access log recorded for {client_ip} at {access_time}.")
         except Error as e:
             print(f"Database error in record_access_log: {e}")
         finally:
@@ -173,8 +169,9 @@ async def increment_counter(
     return {"server_internal_ip": current_server_ip, "counter": counter}
 
 @app.get("/showcount")
-async def show_count():
+async def show_count(request: Request):
     """Endpoint to show the current global counter value."""
+    
     connection = get_db_connection()
     if connection:
         try:
@@ -183,7 +180,6 @@ async def show_count():
             result = cursor.fetchone()
             if result:
                 counter = result[0]
-                print(f"Retrieved global counter: {counter}")
                 return {"global_counter": counter}
             else:
                 print("Global counter not found.")
@@ -192,16 +188,16 @@ async def show_count():
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve counter"}
         finally:
+            record_access_log(request.client.host, server_ip, datetime.now(), -1, "showcount")
             cursor.close()
             connection.close()
     else:
         return {"error": "Database connection failed"}
 
 @app.get("/showlogs")
-async def show_logs():
+async def show_logs(request: Request):
     """Endpoint to show the latest 10 access logs."""
     connection = get_db_connection()
-    print("Retrieving access logs...")
     if connection:
         try:
             cursor = connection.cursor(dictionary=True)
@@ -209,13 +205,12 @@ async def show_logs():
                 "SELECT * FROM access_log ORDER BY access_time DESC "
             )
             logs = cursor.fetchall()
-            print(f"Retrieved {len(logs)} access logs.")
-            print(logs)
             return {"access_logs": logs}
         except Error as e:
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve logs"}
         finally:
+            record_access_log(request.client.host, server_ip, datetime.now(), -1, "showlogs")
             cursor.close()
             connection.close()
     else:
@@ -227,11 +222,8 @@ def initialize_app():
     global server_ip
     print("Initializing application...")
     server_ip = get_server_ip()
-    print(f"Server IP: {server_ip}")
     initialize_counter()
-    print("Global counter initialized.")
     initialize_access_log()
-    print("Application initialized.")
     print("Application started.")
 
 # Initialize the application on startup

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Assignment Dashboard</title>
+  <meta charset="UTF-8"/>
+  <title>Assignment Dashboard - Pastel Elegance (Material-ish Table)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Google Font (Poppins) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,133 +14,234 @@
   />
 
   <style>
-    /* RESET & BASE STYLES */
+    /**********************************************
+     * RESET & BASE STYLES
+     **********************************************/
     *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     html, body {
       width: 100%;
       height: 100%;
+      /* Let body scroll if needed */
+      overflow-x: hidden; 
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #2C003E 0%, #1E1E1E 100%);
-      color: #ECF0F1;
-      overflow: hidden; /* Hide default scrollbars */
     }
+
     body {
       display: flex;
       flex-direction: column;
+      color: #333;
       position: relative;
-      z-index: 1;
+      background-color: #fafafa; /* fallback */
     }
 
-    /* HEADER */
+    /**********************************************
+     * BACKGROUND: GRADIENT SWIRL + FLOATING BUBBLES
+     **********************************************/
+    /* Swirl background with conic gradient animation */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: conic-gradient(
+        from 0deg at 50% 50%, 
+        #FFDEE9 0deg, 
+        #B5FFFC 120deg, 
+        #E2D4F0 240deg,
+        #FFDEE9 360deg
+      );
+      background-size: 200% 200%;
+      animation: swirl 16s linear infinite;
+      z-index: -2;
+    }
+
+    /* Floating bubbles overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='500' height='500' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-opacity='0.25'%3E%3Ccircle fill='%23FFD3BA' cx='80' cy='80' r='40'/%3E%3Ccircle fill='%23B5FFFC' cx='300' cy='150' r='30'/%3E%3Ccircle fill='%23FFB5E8' cx='450' cy='80' r='50'/%3E%3Ccircle fill='%23E2D4F0' cx='100' cy='300' r='60'/%3E%3Ccircle fill='%23FFDEE9' cx='400' cy='300' r='40'/%3E%3C/g%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 600px 600px;
+      animation: bubbleDrift 50s linear infinite;
+      z-index: -1;
+      opacity: 0.25;
+    }
+
+    /**********************************************
+     * HEADER
+     **********************************************/
     header {
       flex-shrink: 0;
       width: 100%;
-      background-color: #1E1E1E;
-      color: #8E44AD;
       padding: 1.5rem 2rem;
       text-align: center;
       font-size: 2rem;
       font-weight: 600;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.5);
       position: sticky;
       top: 0;
       z-index: 10;
-      transition: background-color 0.3s ease;
-    }
-    header:hover {
-      background-color: #2C003E;
+      color: #654ea3; /* pastel purple */
+
+      /* Wave shape + subtle shadow */
+      background: #fdfdfd;
+      clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+      /* Gentle gradient text glow */
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(90deg, #6a85b6, #bac8e0);
+      text-shadow: 0 0 6px rgba(157, 201, 255, 0.4);
     }
 
-    /* MAIN CONTAINER */
+    header:hover {
+      filter: brightness(1.08) saturate(1.2);
+    }
+
+    /**********************************************
+     * CONTAINER
+     **********************************************/
     .container {
-      flex: 1; /* Fill remaining vertical space */
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      overflow: auto; /* Allow internal scrolling if necessary */
-      padding: 3rem 2rem;
-      background-color: rgba(30, 30, 30, 0.85);
-      border-radius: 10px;
-      margin: 2rem;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
-      animation: fadeIn 0.8s ease-in-out;
-      backdrop-filter: blur(5px);
+      margin: 2rem auto;
+      padding: 2rem;
+      max-width: 1200px;
+
+      /* Glassmorphism + 3D tilt */
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      animation: fadeInUp 0.8s ease forwards;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.3, 1), box-shadow 0.8s ease;
+    }
+
+    .container:hover {
+      transform: perspective(1000px) rotateX(3deg) rotateY(-3deg);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2);
     }
 
     h1 {
       margin-bottom: 2rem;
-      font-size: 2.5rem;
-      color: #8E44AD;
+      font-size: 2.3rem;
       text-align: center;
+      color: #313131;
       animation: fadeInUp 0.6s ease forwards;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
-    /* BUTTONS */
+    /**********************************************
+     * BUTTONS
+     **********************************************/
     .buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 1.5rem;
-      margin-bottom: 3rem;
+      margin-bottom: 2.5rem;
       animation: fadeInUp 0.6s ease forwards;
     }
+
     button {
+      position: relative;
       padding: 0.9rem 2rem;
       font-size: 1.1rem;
       border: none;
       border-radius: 30px;
       cursor: pointer;
       font-weight: 500;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
-      color: #1E1E1E;
-      background: linear-gradient(135deg, #8E44AD 0%, #A569BD 100%);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
-      background: linear-gradient(135deg, #A569BD 0%, #8E44AD 100%);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #8E44AD 0%, #A569BD 100%);
-      color: #1E1E1E;
-    }
-    .btn-secondary {
-      background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
-      color: #ECF0F1;
-    }
-    .btn-tertiary {
-      background: linear-gradient(135deg, #7F8C8D 0%, #95A5A6 100%);
-      color: #1E1E1E;
+      outline: none;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease, opacity 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    /* RESULTS SECTION */
+    /* Glowing ring effect on hover for the buttons */
+    button::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.5) 20%, transparent 20%);
+      transform: translate(0,0);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    button:hover::before {
+      opacity: 0.3;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      opacity: 0.95;
+    }
+
+    button:focus {
+      outline: 2px dashed #bac8e0;
+      outline-offset: 4px;
+    }
+
+    /* Button color variants */
+    .btn-primary {
+      background: linear-gradient(135deg, #FFB5E8 0%, #FFDEE9 100%);
+      color: #5a146c;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #B5FFFC 0%, #D7FFF1 100%);
+      color: #006766;
+    }
+
+    .btn-tertiary {
+      background: linear-gradient(135deg, #E2D4F0 0%, #FFF0D3 100%);
+      color: #4e3a60;
+    }
+
+    /**********************************************
+     * RESULTS SECTION
+     **********************************************/
     .results {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      background-color: rgba(44, 44, 44, 0.85);
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
       padding: 2rem;
+      border-radius: 10px;
+      background-color: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       animation: fadeInUp 0.6s ease forwards;
-      backdrop-filter: blur(3px);
-    }
-    .results h2 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      color: #8E44AD;
+      position: relative;
     }
 
-    /* JSON DISPLAY */
+    .results h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem; /* Reduced bottom margin */
+      text-align: center;
+      color: #4a4a4a;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /**********************************************
+     * JSON DISPLAY
+     **********************************************/
     .json-container {
-      background-color: rgba(58, 58, 58, 0.85);
+      background-color: rgba(255, 255, 255, 0.7);
       padding: 2rem;
       border-radius: 8px;
       font-family: 'Courier New', Courier, monospace;
@@ -148,67 +249,94 @@
       overflow-y: auto;
       animation: fadeInUp 0.5s ease forwards;
       line-height: 1.6;
+      color: #444;
+      font-size: 0.95rem;
+      transition: background-color 0.3s ease;
       white-space: pre-wrap;
       word-wrap: break-word;
       position: relative;
-      transition: background-color 0.3s ease;
-      color: #ECF0F1;
+      margin-bottom: 1rem; /* spacing under JSON if displayed */
     }
+
     .json-container:hover {
-      background-color: rgba(78, 78, 78, 0.85);
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* Hide JSON container if empty or not needed (for showlogs) */
+    .json-container.hidden {
+      display: none !important;
     }
 
     /* JSON KEY/VALUE COLORS */
     .json-key {
-      color: #A569BD; /* Soft Lavender */
+      color: #f08;
       font-weight: 600;
     }
+
     .json-value {
-      color: #BDC3C7; /* Light Grey */
-    }
-    .json-braces {
-      color: #FFFFFF; /* White */
+      color: #3185fc;
     }
 
-    /* LOG TABLE */
-    .table-container {
-      overflow-x: auto; /* Allow horizontal scrolling if needed */
-      max-height: 500px; /* Adjust as needed */
-      border-radius: 8px;
-      background-color: rgba(58, 58, 58, 0.85);
-      padding: 1.5rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-      animation: fadeInUp 0.5s ease forwards;
-      margin-top: 2rem;
-      backdrop-filter: blur(3px);
+    .json-braces {
+      color: #222;
     }
+
+    /**********************************************
+     * LOG TABLE
+     **********************************************/
+    /* We'll make only this container scrollable */
+    .table-container {
+      border-radius: 8px;
+      background-color: #fff; /* More Material-UI feel */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      animation: fadeInUp 0.5s ease forwards;
+      overflow-y: auto; /* vertical scroll here */
+      max-height: 400px; 
+      position: relative;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 700px; /* Ensure table is wide enough */
+      min-width: 700px;
+      background-color: #fff;
     }
+
+    thead {
+      background-color: #f5f5f5; /* subtle gray for the header row */
+    }
+
     th, td {
       padding: 1rem;
       text-align: left;
-      border-bottom: 1px solid #444444;
       transition: background-color 0.3s ease;
+      border-bottom: 1px solid #eee;
     }
+
     th {
-      background-color: #8E44AD;
-      color: #1E1E1E;
-      position: sticky;
+      color: #333;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
       top: 0;
       z-index: 2;
-      font-size: 1rem;
     }
-    tr:hover {
-      background-color: #5D6D7E;
+
+    /* Even row striping (material-esque) */
+    tbody tr:nth-child(even) {
+      background-color: #fafafa;
     }
+
+    /* Hover highlight */
+    tbody tr:hover {
+      background-color: #f0f0f0;
+    }
+
     td {
-      color: #ECF0F1;
+      color: #444;
       font-size: 0.95rem;
     }
-    /* Responsive adjustments for table */
+
     @media (max-width: 768px) {
       table {
         min-width: 600px;
@@ -218,41 +346,131 @@
       }
     }
 
-    /* FOOTER */
+    /**********************************************
+     * FOOTER
+     **********************************************/
     footer {
       flex-shrink: 0;
       text-align: center;
       padding: 1.5rem 2rem;
       font-size: 1rem;
-      color: #BDC3C7;
-      background-color: #1E1E1E;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.5);
-      transition: background-color 0.3s ease;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
       z-index: 10;
+      background-color: #fefefe;
+      transition: background-color 0.4s ease, filter 0.4s ease;
+      clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 100%);
+      color: #666;
     }
+
     footer:hover {
-      background-color: #2C003E;
+      filter: brightness(1.05);
     }
+
     footer a {
-      color: #A569BD;
+      color: #826cc7;
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s ease;
     }
+
     footer a:hover {
-      color: #BDC3C7;
+      color: #4a3ab1;
       text-decoration: underline;
     }
 
-    /* KEYFRAME ANIMATIONS */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    /**********************************************
+     * POPUP (MODAL)
+     **********************************************/
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0;
+      padding: 2rem 2.5rem;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      z-index: 1000;
+      max-width: 90%;
+      width: 380px;
+      color: #333;
+      pointer-events: none;
+      transition: transform 0.4s ease, opacity 0.4s ease;
     }
+
+    .popup.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+
+    .popup h3 {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      color: #333;
+    }
+
+    .popup p {
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .popup button {
+      background: linear-gradient(135deg, #FFD3BA 0%, #FFB5E8 100%);
+      color: #4a3ab1;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s ease;
+      outline: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .popup button:hover {
+      background: linear-gradient(135deg, #FFB5E8 0%, #FFD3BA 100%);
+    }
+
+    .popup .close-icon {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #666;
+      transition: color 0.3s ease;
+    }
+
+    .popup .close-icon:hover {
+      color: #4a3ab1;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /**********************************************
+     * KEYFRAME ANIMATIONS
+     **********************************************/
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(15px);
       }
       to {
         opacity: 1;
@@ -260,87 +478,52 @@
       }
     }
 
-    /* SCROLLBAR STYLING */
-    /* Customize scrollbar for better aesthetics */
-    .json-container::-webkit-scrollbar,
-    .table-container::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-    .json-container::-webkit-scrollbar-track,
-    .table-container::-webkit-scrollbar-track {
-      background: rgba(30, 30, 30, 0.5);
-      border-radius: 5px;
-    }
-    .json-container::-webkit-scrollbar-thumb,
-    .table-container::-webkit-scrollbar-thumb {
-      background-color: #A569BD;
-      border-radius: 5px;
-      border: 2px solid rgba(30, 30, 30, 0.5);
-    }
-    .json-container::-webkit-scrollbar-thumb:hover,
-    .table-container::-webkit-scrollbar-thumb:hover {
-      background-color: #BDC3C7;
+    @keyframes swirl {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
-    /* POPUP */
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 2.5rem 3rem;
-      background-color: rgba(30, 30, 30, 0.95);
-      border-radius: 10px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
-      z-index: 1000;
-      animation: fadeIn 0.4s ease-in-out;
-      max-width: 90%;
-      width: 400px;
-      color: #ECF0F1;
+    @keyframes bubbleDrift {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 1000px 1000px;
+      }
     }
-    .popup h3 {
-      margin-bottom: 1.5rem;
-      color: #8E44AD;
-      font-size: 1.5rem;
+
+    /**********************************************
+     * OPTIONAL CUSTOM SCROLLBAR STYLING
+     **********************************************/
+    .table-container::-webkit-scrollbar,
+    .json-container::-webkit-scrollbar {
+      width: 8px;
     }
-    .popup p {
-      margin-bottom: 2rem;
-      color: #ECF0F1;
-      line-height: 1.5;
+
+    .table-container::-webkit-scrollbar-track,
+    .json-container::-webkit-scrollbar-track {
+      background: rgba(200,200,200,0.2);
+      border-radius: 6px;
     }
-    .popup button {
-      background: linear-gradient(135deg, #8E44AD 0%, #A569BD 100%);
-      color: #1E1E1E;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s ease;
+
+    .table-container::-webkit-scrollbar-thumb,
+    .json-container::-webkit-scrollbar-thumb {
+      background-color: #bdbdbd;
+      border-radius: 6px;
     }
-    .popup button:hover {
-      background: linear-gradient(135deg, #A569BD 0%, #8E44AD 100%);
-    }
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 999;
-      opacity: 0;
-      animation: fadeInOverlay 0.4s forwards;
-    }
-    @keyframes fadeInOverlay {
-      from { opacity: 0; }
-      to { opacity: 1; }
+
+    .table-container::-webkit-scrollbar-thumb:hover,
+    .json-container::-webkit-scrollbar-thumb:hover {
+      background-color: #a5a5a5;
     }
   </style>
 </head>
-
 <body>
+
   <header>
     Assignment Dashboard
   </header>
@@ -356,36 +539,43 @@
 
     <div id="results" class="results">
       <h2>Results</h2>
+      <!-- JSON container -->
       <div id="jsonDisplay" class="json-container">
         Results will appear here...
       </div>
-      <!-- Table container will be injected here -->
+      <!-- The scrollable table container will be injected here -->
     </div>
   </div>
 
   <footer>
-    &copy; 2025 Assignment Dashboard | Built with GPT by<a href="#"> Bar Moshe</a>
+    &copy; 2025 Assignment Dashboard | Built with GPT by 
+    <a href="#">Bar Moshe</a>
   </footer>
 
-  <div id="popup" class="popup" style="display: none;">
+  <!-- Popup and Overlay -->
+  <div id="popup" class="popup">
+    <span class="close-icon" onclick="closePopup()">&#10006;</span>
     <h3>Internal IP Cookie Set!</h3>
     <p id="popupContent"></p>
     <button onclick="closePopup()">Close</button>
   </div>
-  <div id="overlay" class="overlay" style="display: none;" onclick="closePopup()"></div>
+  <div id="overlay" class="overlay" onclick="closePopup()"></div>
 
+  <!-- SCRIPTS -->
   <script>
     async function executeRoute(route) {
       const display = document.getElementById("jsonDisplay");
       const resultsSection = document.getElementById("results");
-      // Clear previous content
+
+      // Clear previous JSON or table
       display.innerHTML = "";
       const existingTable = document.getElementById("logsTableContainer");
       if (existingTable) {
         existingTable.remove();
       }
 
-      // Show loading message
+      // Show loading message (in JSON container)
+      display.classList.remove("hidden");
       display.innerHTML = "<p>Loading...</p>";
 
       try {
@@ -396,22 +586,26 @@
 
         const data = await response.json();
 
-        // Handle internal_ip popup
+        // Handle internal_ip popup if present
         if (data.server_internal_ip) {
-          const expirationDate = new Date(Date.now() + 300000); // 5 minutes from now
+          const expirationDate = new Date(Date.now() + 300000); // 5 min from now
           showPopup(data.server_internal_ip, expirationDate);
         }
 
-        // If route is the logs endpoint, render a table
+        // If route is the logs endpoint, we show the table and hide JSON
         if (route === "/showlogs") {
-          display.innerHTML = ""; // Clear loading message
+          // Hide JSON container to avoid gap
+          display.classList.add("hidden");
+          // Insert table after the .json-container
           const tableHTML = renderLogsTable(data);
           resultsSection.insertAdjacentHTML('beforeend', tableHTML);
         } else {
+          // For other routes, show JSON
           display.innerHTML = formatJSON(data);
         }
       } catch (error) {
-        display.innerHTML = '<p style="color: #FF4136;">Error: ' + error.message + '</p>';
+        display.classList.remove("hidden");
+        display.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
       }
     }
 
@@ -420,15 +614,20 @@
       const overlay = document.getElementById("overlay");
       const popupContent = document.getElementById("popupContent");
 
-      popupContent.innerHTML = `Internal IP: <strong>${ip}</strong><br />Expires at: <strong>${expiration.toLocaleTimeString()}</strong>`;
-
-      popup.style.display = "block";
-      overlay.style.display = "block";
+      popupContent.innerHTML = `
+        Internal IP: <strong>${ip}</strong><br />
+        Expires at: <strong>${expiration.toLocaleTimeString()}</strong>
+      `;
+      popup.classList.add('active');
+      overlay.classList.add('active');
     }
 
     function closePopup() {
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("overlay").style.display = "none";
+      const popup = document.getElementById("popup");
+      const overlay = document.getElementById("overlay");
+
+      popup.classList.remove('active');
+      overlay.classList.remove('active');
     }
 
     // Renders JSON as syntax-highlighted text
@@ -441,14 +640,12 @@
     }
 
     // Renders logs in a table format
-    // Expected data format: { "access_logs": [ {id, client_ip, server_ip, access_time, counter}, ... ] }
+    // Expected data format: { "access_logs": [ {id, client_ip, server_ip, access_time, counter, action}, ... ] }
     function renderLogsTable(data) {
-      // Validate data structure
       if (!data.access_logs || !Array.isArray(data.access_logs)) {
-        return '<p style="color: #FF4136;">Invalid logs data format.</p>';
+        return '<p style="color: red;">Invalid logs data format.</p>';
       }
 
-      // Start building the table HTML
       let tableHTML = `
         <div id="logsTableContainer" class="table-container">
           <table>
@@ -459,14 +656,14 @@
                 <th>Server IP</th>
                 <th>Access Time</th>
                 <th>Counter Value</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
       `;
 
       data.access_logs.forEach((logEntry) => {
-        // Destructure logEntry object
-        const {id, client_ip, server_ip, access_time, counter} = logEntry;
+        const { id, client_ip, server_ip, access_time, counter, action } = logEntry;
         tableHTML += `
           <tr>
             <td>${id}</td>
@@ -474,6 +671,7 @@
             <td>${server_ip}</td>
             <td>${new Date(access_time).toLocaleString()}</td>
             <td>${counter}</td>
+            <td>${action}</td>
           </tr>
         `;
       });
