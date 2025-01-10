@@ -188,7 +188,7 @@ async def show_count(request: Request):
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve counter"}
         finally:
-            record_access_log(request.client.host, server_ip, datetime.now(), -1, "showcount")
+            record_access_log(request.client.host, server_ip, datetime.now(), result[0], "showcount")
             cursor.close()
             connection.close()
     else:
@@ -200,17 +200,21 @@ async def show_logs(request: Request):
     connection = get_db_connection()
     if connection:
         try:
+            
             cursor = connection.cursor(dictionary=True)
             cursor.execute(
                 "SELECT * FROM access_log ORDER BY access_time DESC "
             )
             logs = cursor.fetchall()
+            cursor= connection.cursor()
+            cursor.execute("SELECT value FROM global_counter WHERE id = 1")
+            counter = cursor.fetchone()
             return {"access_logs": logs}
         except Error as e:
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve logs"}
         finally:
-            record_access_log(request.client.host, server_ip, datetime.now(), -1, "showlogs")
+            record_access_log(request.client.host, server_ip, datetime.now(), counter[0], "showlogs")
             cursor.close()
             connection.close()
     else:
