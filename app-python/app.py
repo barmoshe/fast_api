@@ -307,7 +307,13 @@ async def show_logs(request: Request):
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve logs"}
         finally:
-            record_access_log("localhost", server_ip, datetime.now(), -1, action="show logs")
+            record_access_log(
+                request.client.host,
+                server_ip,
+                datetime.now(),
+                -1,
+                action="show logs",
+            )
             cursor.close()
             connection.close()
     else:
