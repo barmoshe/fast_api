@@ -302,6 +302,9 @@ async def show_logs(request: Request):
             cursor = connection.cursor(dictionary=True)
             cursor.execute("SELECT * FROM access_log ORDER BY access_time DESC ")
             logs = cursor.fetchall()
+            cursor=connection.cursor()
+            cursor.execute("SELECT value FROM global_counter WHERE id = 1")
+            result = cursor.fetchone()
             return {"access_logs": logs}
         except Error as e:
             print(f"Database error: {e}")
@@ -311,7 +314,7 @@ async def show_logs(request: Request):
                 request.client.host,
                 server_ip,
                 datetime.now(),
-                -1,
+                result[0],
                 action="show logs",
             )
             cursor.close()
