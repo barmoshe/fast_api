@@ -262,7 +262,7 @@ async def increment_counter(
 
 
 @app.get("/showcount")
-async def show_count():
+async def show_count(request: Request):
     """Endpoint to show the current global counter value."""
     connection = get_db_connection()
     if connection:
@@ -271,7 +271,11 @@ async def show_count():
             cursor.execute("SELECT value FROM global_counter WHERE id = 1")
             result = cursor.fetchone()
             record_access_log(
-                "localhost", server_ip, datetime.now(), result[0], action="show count"
+                request.client.host,
+                server_ip,
+                datetime.now(),
+                result[0],
+                action="show count",
             )
             if result:
                 counter = result[0]
@@ -290,10 +294,9 @@ async def show_count():
 
 
 @app.get("/showlogs")
-async def show_logs():
+async def show_logs(request: Request):
     """Endpoint to show the latest 10 access logs."""
     connection = get_db_connection()
-    record_access_log("localhost", server_ip, datetime.now(), 0, action="show logs")
     if connection:
         try:
             cursor = connection.cursor(dictionary=True)
@@ -304,6 +307,7 @@ async def show_logs():
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve logs"}
         finally:
+            record_access_log("localhost", server_ip, datetime.now(), -1, action="show logs")
             cursor.close()
             connection.close()
     else:
