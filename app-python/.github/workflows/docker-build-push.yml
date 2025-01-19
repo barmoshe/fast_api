@@ -1,0 +1,50 @@
+name: Docker Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - '*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3 
+
+      # Log in to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Set up AWS CLI
+      - name: Configure AWS CLI
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+
+      # Build and tag Docker image
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=${{ secrets.AWS_ECR_URI }}
+          BRANCH_NAME=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          SHORT_SHA=$(echo "${{ github.sha }}" | head -c 7)
+          TAG_LATEST="${IMAGE_NAME}:latest"
+          TAG_BRANCH_COMMIT="${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}"
+          docker build -t $TAG_LATEST -t $TAG_BRANCH_COMMIT ./app-python
+
+      # Push Docker image to ECR
+      - name: Push Docker image to Amazon ECR
+        run: |
+          IMAGE_NAME=${{ secrets.AWS_ECR_URI }}
+          BRANCH_NAME=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          SHORT_SHA=$(echo "${{ github.sha }}" | head -c 7)
+          TAG_LATEST="${IMAGE_NAME}:latest"
+          TAG_BRANCH_COMMIT="${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}"
+          docker push $TAG_LATEST
+          docker push $TAG_BRANCH_COMMIT
