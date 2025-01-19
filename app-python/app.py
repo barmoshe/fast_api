@@ -13,15 +13,18 @@ app = FastAPI()
 app.mount("/frontend", StaticFiles(directory="static", html=True), name="static")
 print("test ci/cd pipeline")
 # Database Configuration (from environment variables)
-DB_HOST = os.getenv("DATABASE_HOST", "localhost")
+DB_HOST = os.getenv(
+    "DATABASE_HOST", "whist-db.coow8klldjgb.us-east-1.rds.amazonaws.com"
+)
 DB_PORT = int(os.getenv("DATABASE_PORT", "3306"))
-DB_USER = os.getenv("DATABASE_USER", "root")
-DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "example")
-DB_NAME = os.getenv("DATABASE_NAME", "whist_db")
+DB_USER = os.getenv("DATABASE_USER", "admin")
+DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "examplepassword")
+DB_NAME = os.getenv("DATABASE_NAME", "whist-db")
 
 
 # Global variable to store the server's IP
 server_ip = None
+
 
 def get_server_ip():
     """Retrieve the server's IP address."""
@@ -46,6 +49,7 @@ def get_db_connection():
         print(f"Error connecting to MySQL: {e}")
         return None
 
+
 def initialize_counter():
     """Initialize the global_counter table."""
     connection = get_db_connection()
@@ -69,6 +73,7 @@ def initialize_counter():
         finally:
             cursor.close()
             connection.close()
+
 
 def initialize_access_log():
     """Initialize the access_log table."""
@@ -95,6 +100,7 @@ def initialize_access_log():
             cursor.close()
             connection.close()
 
+
 def increment_global_counter():
     """Increment the global counter atomically."""
     connection = get_db_connection()
@@ -114,6 +120,7 @@ def increment_global_counter():
             connection.close()
     return None
 
+
 def set_internal_ip_cookie(response: Response, internal_ip: str):
     """Set a cookie for the internal IP."""
     response.set_cookie(
@@ -123,7 +130,14 @@ def set_internal_ip_cookie(response: Response, internal_ip: str):
         httponly=True,
     )
 
-def record_access_log(client_ip: str, server_ip: str, access_time: datetime, counter: int, action: str = "increment"):
+
+def record_access_log(
+    client_ip: str,
+    server_ip: str,
+    access_time: datetime,
+    counter: int,
+    action: str = "increment",
+):
     """Record the access details in the access_log table."""
     connection = get_db_connection()
     if connection:
@@ -142,6 +156,7 @@ def record_access_log(client_ip: str, server_ip: str, access_time: datetime, cou
         finally:
             cursor.close()
             connection.close()
+
 
 @app.get("/")
 async def increment_counter(
@@ -167,10 +182,11 @@ async def increment_counter(
 
     return {"server_internal_ip": current_server_ip, "counter": counter}
 
+
 @app.get("/showcount")
 async def show_count(request: Request):
     """Endpoint to show the current global counter value."""
-    
+
     connection = get_db_connection()
     if connection:
         try:
@@ -187,11 +203,14 @@ async def show_count(request: Request):
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve counter"}
         finally:
-            record_access_log(request.client.host, server_ip, datetime.now(), result[0], "showcount")
+            record_access_log(
+                request.client.host, server_ip, datetime.now(), result[0], "showcount"
+            )
             cursor.close()
             connection.close()
     else:
         return {"error": "Database connection failed"}
+
 
 @app.get("/showlogs")
 async def show_logs(request: Request):
@@ -199,13 +218,11 @@ async def show_logs(request: Request):
     connection = get_db_connection()
     if connection:
         try:
-            
+
             cursor = connection.cursor(dictionary=True)
-            cursor.execute(
-                "SELECT * FROM access_log ORDER BY access_time DESC "
-            )
+            cursor.execute("SELECT * FROM access_log ORDER BY access_time DESC ")
             logs = cursor.fetchall()
-            cursor= connection.cursor()
+            cursor = connection.cursor()
             cursor.execute("SELECT value FROM global_counter WHERE id = 1")
             counter = cursor.fetchone()
             return {"access_logs": logs}
@@ -213,12 +230,15 @@ async def show_logs(request: Request):
             print(f"Database error: {e}")
             return {"error": "Failed to retrieve logs"}
         finally:
-            record_access_log(request.client.host, server_ip, datetime.now(), counter[0], "showlogs")
+            record_access_log(
+                request.client.host, server_ip, datetime.now(), counter[0], "showlogs"
+            )
             cursor.close()
             connection.close()
     else:
         return {"error": "Database connection failed"}
-    
+
+
 @app.on_event("startup")
 def initialize_app():
     """Initialize the application by setting up the database and updating the backend map."""
@@ -228,6 +248,7 @@ def initialize_app():
     initialize_counter()
     initialize_access_log()
     print("Application started.")
+
 
 # Initialize the application on startup
 initialize_app()
