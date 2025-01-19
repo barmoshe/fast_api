@@ -1,7 +1,6 @@
 import os
 import socket
 from datetime import datetime
-
 from fastapi import FastAPI, Request, Response, Cookie
 from fastapi.staticfiles import StaticFiles
 import mysql.connector
