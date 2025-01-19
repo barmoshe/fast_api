@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-      - dev  # Trigger on commits to main and dev branches
-      - V2
+      - V2  # Trigger on commits to main and dev branches
+
 
 jobs:
   build-and-push:
@@ -37,14 +37,17 @@ jobs:
     # Tag Docker image
     - name: Tag Docker image
       run: |
-        SHORT_SHA=${{ github.sha }}; SHORT_SHA=${SHORT_SHA:0:7}
-        IMAGE_TAG=whist-app:${SHORT_SHA}
-        docker tag whist-app:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:latest
-        docker tag whist-app:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:${{ github.event.ref_name }}-${SHORT_SHA}
+        SHORT_SHA=${{ github.sha:0:7 }}
+        BRANCH_NAME=${{ github.ref_name }}
+        REPOSITORY=${{ steps.login-ecr.outputs.registry }}/whist-app-repository
+        docker tag whist-app:${{ github.sha }} $REPOSITORY:latest
+        docker tag whist-app:${{ github.sha }} $REPOSITORY:${BRANCH_NAME}-${SHORT_SHA}
 
     # Push Docker image to ECR
     - name: Push Docker image to ECR
       run: |
-        docker push ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:latest
-        SHORT_SHA=${{ github.sha }}; SHORT_SHA=${SHORT_SHA:0:7}
-        docker push ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:${{ github.event.ref_name }}-${SHORT_SHA}
+        SHORT_SHA=${{ github.sha:0:7 }}
+        BRANCH_NAME=${{ github.ref_name }}
+        REPOSITORY=${{ steps.login-ecr.outputs.registry }}/whist-app-repository
+        docker push $REPOSITORY:latest
+        docker push $REPOSITORY:${BRANCH_NAME}-${SHORT_SHA}
