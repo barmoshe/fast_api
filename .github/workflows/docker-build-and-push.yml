@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - V2  # Trigger on commits to main and dev branches
+      - dev  # Trigger on commits to main and dev branches
 
 jobs:
   build-and-push:
