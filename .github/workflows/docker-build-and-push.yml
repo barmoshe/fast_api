@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-      - V2  # Trigger on commits to main and dev branches
-
+      - dev  # Trigger on commits to main and dev branches
 
 jobs:
   build-and-push:
@@ -37,8 +36,8 @@ jobs:
     # Tag Docker image
     - name: Tag Docker image
       run: |
-        SHORT_SHA=${{ github.sha:0:7 }}
-        BRANCH_NAME=${{ github.ref_name }}
+        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+        BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's|refs/heads/||')
         REPOSITORY=${{ steps.login-ecr.outputs.registry }}/whist-app-repository
         docker tag whist-app:${{ github.sha }} $REPOSITORY:latest
         docker tag whist-app:${{ github.sha }} $REPOSITORY:${BRANCH_NAME}-${SHORT_SHA}
@@ -46,8 +45,8 @@ jobs:
     # Push Docker image to ECR
     - name: Push Docker image to ECR
       run: |
-        SHORT_SHA=${{ github.sha:0:7 }}
-        BRANCH_NAME=${{ github.ref_name }}
+        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+        BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's|refs/heads/||')
         REPOSITORY=${{ steps.login-ecr.outputs.registry }}/whist-app-repository
         docker push $REPOSITORY:latest
         docker push $REPOSITORY:${BRANCH_NAME}-${SHORT_SHA}
