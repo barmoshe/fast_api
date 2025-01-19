@@ -11,7 +11,7 @@ app = FastAPI()
 
 # Mount the static files directory
 app.mount("/frontend", StaticFiles(directory="static", html=True), name="static")
-print("test ci")
+print("test ci/cd")
 # Database Configuration (from environment variables)
 DB_HOST = os.getenv("DATABASE_HOST", "localhost")
 DB_PORT = int(os.getenv("DATABASE_PORT", "3306"))
