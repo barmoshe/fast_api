@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - dev  # Trigger on commits to main and dev branches
-      - V2
 
 jobs:
   build-and-push:
@@ -37,12 +36,14 @@ jobs:
     # Tag Docker image
     - name: Tag Docker image
       run: |
-        IMAGE_TAG=whist-app:${{ github.sha }}
-        docker tag $IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:latest
-        docker tag $IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:${{ github.event.repository.default_branch }}-${{ github.sha::7 }}
+        SHORT_SHA=${{ github.sha }}; SHORT_SHA=${SHORT_SHA:0:7}
+        IMAGE_TAG=whist-app:${SHORT_SHA}
+        docker tag whist-app:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:latest
+        docker tag whist-app:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:${{ github.event.ref_name }}-${SHORT_SHA}
 
     # Push Docker image to ECR
     - name: Push Docker image to ECR
       run: |
         docker push ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:latest
-        docker push ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:${{ github.event.repository.default_branch }}-${{ github.sha::7 }}
+        SHORT_SHA=${{ github.sha }}; SHORT_SHA=${SHORT_SHA:0:7}
+        docker push ${{ steps.login-ecr.outputs.registry }}/whist-app-repository:${{ github.event.ref_name }}-${SHORT_SHA}
