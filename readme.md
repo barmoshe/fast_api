@@ -1,5 +1,4 @@
-
-# Whist Assignment
+# Containerized Web Application Project
 
 This project demonstrates a containerized web application using **FastAPI**, **MySQL**, and **Nginx**. It leverages **Docker Compose** for multi-container orchestration and scalability.
 
@@ -32,7 +31,7 @@ This project demonstrates a containerized web application using **FastAPI**, **M
 
 ## File Structure
 ```
-whist_assignment/
+web_app_project/
 ├── DB
 │   ├── data             # MySQL data directory
 │   ├── init.sql         # Initial SQL script to set up the database
@@ -71,7 +70,7 @@ whist_assignment/
 1. **Clone the Repository**:
    ```bash
    git clone <repository-url>
-   cd whist_assignment
+   cd web_app_project
    ```
 
 2. **Build and Start Containers**:
